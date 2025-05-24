@@ -12,6 +12,9 @@ type
     trigger*: Trigger
   Stack* = seq[Embed]
 
+var
+  doResolve: bool
+
 proc turnCW*(robo: var Entity) =
   case robo.direction
   of Up:
@@ -22,8 +25,7 @@ proc turnCW*(robo: var Entity) =
     robo.direction = Up
   of Right:
     robo.direction = Down
-  of Neutral:
-    robo.direction = Right
+  else: return
 
 proc turnCCW*(robo: var Entity) =
   case robo.direction
@@ -35,22 +37,28 @@ proc turnCCW*(robo: var Entity) =
     robo.direction = Down
   of Right:
     robo.direction = Up
-  of Neutral:
-    robo.direction = Left
+  else: return
+
+proc beginResolve* =
+  doResolve = true
+
+proc stopResolve* =
+  doResolve = false
 
 proc resolveNow(embedType: EmbedType, robo: var Entity) =
-  when DEBUGPRINT:
-    echo "Resolving now: " & $embedType
   case embedType
   of TurnCCW: turnCCW(robo)
   of TurnCW: turnCW(robo)
-  else: 
-    if robo.direction == Neutral: robo.direction = Down
+  else: return
+
+  when DEBUGPRINT:
+    echo "Resolving now: " & $embedType
 
 proc resolveStackUpdate*(stack: var Stack, robo: var Entity) =
+  if stack.len <= 0: return
   let
     tail = stack[^1]
-    shouldResolveNow = robo.resolveStack
+    shouldResolveNow = robo.resolveStack and doResolve
 
   if shouldResolveNow: 
     resolveNow(tail.kind, robo)

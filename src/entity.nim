@@ -79,15 +79,3 @@ proc setSpeed*(entity: var Entity, value: float32) =
 proc moveEntToCheckpoint*(ent: var Entity, levelNum: int = getLevel()) =
   ent.pos = checkpointOfGrid(level(levelNum), Start)
 
-proc progressLevels*(robo: var Entity) =
-  let 
-    finishGrid = checkpointOfGrid(level(getLevel()), Finish)
-    reachedEnd = 
-      robo.pos.x >= finishGrid.x and 
-      robo.pos.y >= finishGrid.y and 
-      robo.pos.x < finishGrid.x + 16 and
-      robo.pos.y < finishGrid.y + 16
-
-  if reachedEnd:
-    moveEntToCheckpoint robo
-    setLevel(getLevel() + 1)
